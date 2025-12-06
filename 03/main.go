@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -99,8 +100,7 @@ func findCombinedBatteryJoltage(maxBattery int, bank []int) *Battery {
 
 }
 
-func main() {
-	banks := readBanks("input.txt")
+func part1(banks iter.Seq[string]) int {
 	totalJoltage := 0
 	for bankString := range banks {
 		var candidates []int
@@ -130,5 +130,44 @@ func main() {
 
 		totalJoltage += findMax(candidates)
 	}
-	fmt.Println(totalJoltage)
+	return totalJoltage
+}
+
+func part2(banks iter.Seq[string]) int {
+	totalJotalge := 0
+
+	for bankString := range banks {
+		bankSeq := strings.SplitSeq(bankString, "")
+		var bank []int
+
+		for battery := range bankSeq {
+			intBattery, _ := strconv.Atoi(battery)
+			bank = append(bank, intBattery)
+		}
+
+		updatedBank := bank
+
+		digitsLeft := 12
+		result := 0
+		for digitsLeft > 0 {
+			bankMax := findMax(updatedBank[:len(updatedBank)-digitsLeft+1])
+			indexMax := findValueIndex(bankMax, updatedBank[:len(updatedBank)-digitsLeft+1])
+
+			result += int(math.Pow(float64(10), float64(digitsLeft-1))) * bankMax
+			updatedBank = updatedBank[indexMax+1:]
+			digitsLeft--
+
+		}
+		totalJotalge += result
+	}
+
+	return totalJotalge
+}
+
+func main() {
+	banks := readBanks("input.txt")
+
+	fmt.Println(part1(banks))
+	banks2 := readBanks("input.txt")
+	fmt.Println(part2(banks2))
 }
